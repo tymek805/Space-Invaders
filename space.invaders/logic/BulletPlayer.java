@@ -1,3 +1,5 @@
+package logic;
+
 public class BulletPlayer extends Bullet{
 
     private int placeHolderImage;  //to be changed for an image
@@ -15,3 +17,4 @@ public class BulletPlayer extends Bullet{
         this.placeHolderImage = placeHolderImage;
     }
 }
+

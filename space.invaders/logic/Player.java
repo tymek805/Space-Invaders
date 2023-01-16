@@ -1,5 +1,7 @@
+package logic;
+
 public class Player {
-    
+
     private int y;
 
     public Player(int y){
@@ -7,7 +9,7 @@ public class Player {
     }
 
     public void shoot(){
-        
+
     }
 
     //Getters and setters

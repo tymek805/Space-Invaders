@@ -1,3 +1,5 @@
+package logic;
+
 public class BulletSpaceship extends Bullet{
 
     private int placeHolderImage;  //to be changed for an image

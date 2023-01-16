@@ -1,9 +1,11 @@
-public class Bullet {
-    
+package logic;
+
+public abstract class Bullet {
+
     private int x;
     private int y;
     private int speedOfTheBullet;
-    
+
     public Bullet(int x, int y, int speedOfTheBullet) {
         this.x = x;
         this.y = y;
