@@ -10,9 +10,9 @@ import java.awt.event.KeyListener;
 
 public class GUI extends JFrame implements KeyListener {
     MainBodyPanel mainBodyPanel;
-    
+
     JLabel player;
-    
+
     Player player01;
     final int player_width = 40;
     final int player_height = 40;
@@ -30,9 +30,9 @@ public class GUI extends JFrame implements KeyListener {
         this.add(mainBodyPanel);
         mainBodyPanel.addKeyListener(this);
 
-        //Player 
+        // Player
         player = new JLabel("Statek");
-        player.setSize(40,40);
+        player.setSize(40, 40);
         player.setBounds(x_position, y_position, player_width, player_height);
         player.setForeground(Color.RED);
 
