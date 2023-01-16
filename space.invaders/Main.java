@@ -1,7 +1,7 @@
-import gui.Board;
+import gui.GUI;
 
 public class Main {
     public static void main(String[] args) {
-        Board gui = new Board();
+        GUI gui = new GUI();
     }
 }

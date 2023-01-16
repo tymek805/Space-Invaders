@@ -1,11 +1,16 @@
 package logic;
 
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
+
 public class Player {
 
-    private int x;
+    private int xPos;
 
-    public Player(int y){
-        this.x = x;
+    public Player(int xPos){
+        this.xPos = xPos;
     }
 
     public void shoot(){
@@ -14,10 +19,10 @@ public class Player {
 
     //Getters and setters
     public int getX() {
-        return x;
+        return xPos;
     }
 
-    public void setX(int x) {
-        this.x = x;
+    public void setX(int xPos) {
+        this.xPos = xPos;
     }
 }
