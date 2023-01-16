@@ -9,36 +9,36 @@ import java.awt.event.KeyListener;
 //TODO: przenieść panel do nowej klasy
 
 public class GUI extends JFrame implements KeyListener {
-    MainBodyPanel mbp;
+    MainBodyPanel mainBodyPanel;
     
-    JPanel mainBodyPanel;
     JLabel player;
     
+    Player player01;
     final int player_width = 40;
     final int player_height = 40;
-    int x_position = 400;
     final int y_position = 500;
+    int x_position = 400;
 
     public GUI() {
-        mbp = new MainBodyPanel();
+        mainBodyPanel = new MainBodyPanel();
 
         this.setTitle("Space Invaders");
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setLayout(new BorderLayout());
         this.setSize(800, 600);
 
-        this.add(mbp.getMainBodyPanel());
-        mbp.getMainBodyPanel().addKeyListener(keyPressed(null));
+        this.add(mainBodyPanel);
+        mainBodyPanel.addKeyListener(this);
 
-        // player
-        Player player1 = new Player(400);
+        //Player 
         player = new JLabel("Statek");
-
-        // player.setSize(40,40);
+        player.setSize(40,40);
         player.setBounds(x_position, y_position, player_width, player_height);
         player.setForeground(Color.RED);
 
-        mbp.getMainBodyPanel().add(player);
+        player01 = new Player(400);
+
+        mainBodyPanel.add(player);
         this.setVisible(true);
     }
 
