@@ -8,9 +8,11 @@ import java.awt.event.KeyEvent;
 public class Player {
 
     private int xPos;
+    public int speed;
 
-    public Player(int xPos){
+    public Player(int xPos, int speed) {
         this.xPos = xPos;
+        this.speed = speed;
     }
 
     public void shoot(){

@@ -1,5 +1,7 @@
 package logic;
 
+import javax.swing.*;
+
 public class BulletPlayer extends Bullet{
 
     private int placeHolderImage;  //to be changed for an image

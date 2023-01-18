@@ -9,7 +9,7 @@ public class MainBodyPanel extends JPanel {
     public MainBodyPanel() {
         mainBodyPanel = new JPanel();
         this.setLayout(null);
-        this.setBackground(Color.BLACK);
+//        this.setBackground(Color.BLACK);
         this.setVisible(true);
     }
 
