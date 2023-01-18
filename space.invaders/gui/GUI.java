@@ -1,44 +1,54 @@
 package gui;
 
 import logic.Player;
+import logic.gameTimer;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-//TODO: przenieść panel do nowej klasy
+import java.util.Timer;
 
 public class GUI extends JFrame implements KeyListener {
     MainBodyPanel mainBodyPanel;
-
     JLabel player;
-
-    Player player01;
+    JLabel timeLabel;
     final int player_width = 40;
     final int player_height = 40;
-    final int y_position = 500;
     int x_position = 400;
+    final int y_position = 500;
 
-    public GUI() {
-        mainBodyPanel = new MainBodyPanel();
-
+    public GUI(){
         this.setTitle("Space Invaders");
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setLayout(new BorderLayout());
-        this.setSize(800, 600);
+        this.setSize(800,600);
 
-        this.add(mainBodyPanel);
-        mainBodyPanel.addKeyListener(this);
+//        mainBody
+        mainBodyPanel = new MainBodyPanel();
+        this.add(mainBodyPanel,BorderLayout.CENTER);
 
-        // Player
+//        player
+        Player player1 = new Player(400);
         player = new JLabel("Statek");
-        player.setSize(40, 40);
+        //TODO:resize the player icon to sth around 60-80px and change icon source image place to graphic folder
+        player.setIcon(new ImageIcon(getClass().getResource("playerLabel.png")));
+//        player.setSize(40,40);
         player.setBounds(x_position, y_position, player_width, player_height);
-        player.setForeground(Color.RED);
-
-        player01 = new Player(400);
-
+//        player.setForeground(Color.RED);
         mainBodyPanel.add(player);
+
+//        timer
+        timeLabel = new JLabel();
+        timeLabel.setBackground(Color.BLACK);
+        timeLabel.setForeground(Color.CYAN);
+        timeLabel.setFont(new Font("Arial", Font.BOLD, 20));
+        timeLabel.setBounds(0,350,100,50);
+        java.util.Timer timer = new Timer();
+        timer.schedule(new gameTimer(timeLabel), 0, 1000);
+        this.add(timeLabel,BorderLayout.NORTH);
+
+        this.addKeyListener(this);
         this.setVisible(true);
     }
 
@@ -54,17 +64,15 @@ public class GUI extends JFrame implements KeyListener {
         int speed = 3;
         boolean moveLeft = keyCode == KeyEvent.VK_LEFT || keyCode == KeyEvent.VK_A;
         boolean moveRight = keyCode == KeyEvent.VK_RIGHT || keyCode == KeyEvent.VK_D;
-        if (moveLeft || moveRight) {
-            if (moveLeft) {
-                System.out.println("Ruch w lewo");
+        if (moveLeft || moveRight){
+            if (moveLeft){
+//                System.out.println("Ruch w lewo");
                 x_position -= speed;
-            } else if (moveRight) {
-                System.out.println("Ruch w prawo");
+            }else if (moveRight){
+//                System.out.println("Ruch w prawo");
                 x_position += speed;
             }
             player.setBounds(x_position, y_position, player_width, player_height);
-            mainBodyPanel.revalidate();
-            mainBodyPanel.repaint();
         }
     }
 
