@@ -1,30 +1,35 @@
 package logic;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.KeyEvent;
+import java.io.File;
+import java.io.IOException;
 
-public class Player {
+public class Player extends JLabel {
 
-    private int xPos;
-    public int speed;
+    private final int speed;
+    private final int width;
+    private final int height;
 
-    public Player(int xPos, int speed) {
-        this.xPos = xPos;
+    public Player(int width, int height, int speed) {
+        this.width = width;
+        this.height = height;
         this.speed = speed;
+        this.setIcon(setImageIcon());
     }
 
-    public void shoot(){
-
+    public void setBounds(int positionX, int positionY){
+        super.setBounds(positionX, positionY, width, height);
     }
 
-    //Getters and setters
-    public int getX() {
-        return xPos;
-    }
+    public int getSpeed() {return speed;}
 
-    public void setX(int xPos) {
-        this.xPos = xPos;
+    private ImageIcon setImageIcon(){
+        try{
+            Image img = ImageIO.read(new File("space.invaders\\graphic\\starship.png"));
+            return new ImageIcon(img.getScaledInstance(width, height, 0));
+        }catch (IOException e){System.out.println("Image not found!");}
+        return null;
     }
 }

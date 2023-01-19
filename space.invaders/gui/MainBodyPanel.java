@@ -4,12 +4,12 @@ import javax.swing.JPanel;
 import java.awt.*;
 
 public class MainBodyPanel extends JPanel {
-    JPanel mainBodyPanel;
+    private JPanel mainBodyPanel;
 
     public MainBodyPanel() {
         mainBodyPanel = new JPanel();
         this.setLayout(null);
-//        this.setBackground(Color.BLACK);
+        this.setBackground(Color.BLACK);
         this.setVisible(true);
     }
 
