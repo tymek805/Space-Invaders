@@ -1,8 +1,8 @@
 package logic;
 
-public class BulletSpaceship extends Bullet{
+public class BulletSpaceship extends Bullet {
 
-    private int placeHolderImage;  //to be changed for an image
+    private int placeHolderImage; // to be changed for an image
 
     public BulletSpaceship(int x, int y, int speedOfTheBullet, int placeHolderImage) {
         super(x, y, speedOfTheBullet);

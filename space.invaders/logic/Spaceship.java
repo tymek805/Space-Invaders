@@ -1,16 +1,16 @@
 package logic;
 
-public class Spaceship{
+public class Spaceship {
 
     private int x;
     private int y;
 
-    public Spaceship(int x, int y){
+    public Spaceship(int x, int y) {
         this.x = x;
         this.y = y;
     }
 
-    //Getters and setters
+    // Getters and setters
     public int getX() {
         return x;
     }
