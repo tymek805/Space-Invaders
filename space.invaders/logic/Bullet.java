@@ -1,7 +1,8 @@
 package logic;
 
-public abstract class Bullet {
+import javax.swing.*;
 
+public abstract class Bullet {
     private int x;
     private int y;
     private int speedOfTheBullet;

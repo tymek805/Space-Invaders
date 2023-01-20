@@ -19,7 +19,7 @@ public class BulletPlayer extends Bullet{
     public void setLabel(){
         bulletLabel = new JLabel("|");
         bulletLabel.setForeground(Color.RED);
-        bulletLabel.setBounds(this.getX()-(bulletWidth/2),this.getY(),bulletWidth,bulletHeight);
+        bulletLabel.setBounds(this.getX()-(bulletWidth/2),this.getY()-(bulletHeight/2),bulletWidth,bulletHeight);
     }
 
     public JLabel getBulletLabel() {
