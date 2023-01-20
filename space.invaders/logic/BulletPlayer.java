@@ -1,14 +1,33 @@
 package logic;
 
 import javax.swing.*;
+import java.awt.*;
 
 public class BulletPlayer extends Bullet{
-
+    private JLabel bulletLabel;
     private int placeHolderImage;  //to be changed for an image
+    private int bulletWidth = 5;
+    private int bulletHeight = 40;
 
-    public BulletPlayer(int x, int y, int speedOfTheBullet, int placeHolderImage) {
+
+    public BulletPlayer(int x, int y, int speedOfTheBullet, JLabel bulletLabel, int placeHolderImage) {
         super(x, y, speedOfTheBullet);
+        this.bulletLabel = bulletLabel;
         this.placeHolderImage = placeHolderImage;
+    }
+
+    public void setLabel(){
+        bulletLabel = new JLabel("|");
+        bulletLabel.setForeground(Color.RED);
+        bulletLabel.setBounds(this.getX()-(bulletWidth/2),this.getY(),bulletWidth,bulletHeight);
+    }
+
+    public JLabel getBulletLabel() {
+        return bulletLabel;
+    }
+
+    public void setBulletLabel(JLabel bulletLabel) {
+        this.bulletLabel = bulletLabel;
     }
 
     public int getPlaceHolderImage() {

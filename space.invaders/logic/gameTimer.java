@@ -9,6 +9,10 @@ public class gameTimer extends TimerTask {
     JLabel currentDateTime;
     long startTime = System.currentTimeMillis();
 
+    public long getStartTime() {
+        return startTime;
+    }
+
     public gameTimer(JLabel aLabel) {
         this.currentDateTime = aLabel;
     }

@@ -1,29 +1,35 @@
 package logic;
 
-public class Spaceship{
+import javax.imageio.ImageIO;
+import javax.swing.*;
+import java.awt.*;
+import java.io.File;
+import java.io.IOException;
 
-    private int x;
-    private int y;
+public class Spaceship extends JLabel {
 
-    public Spaceship(int x, int y){
-        this.x = x;
-        this.y = y;
+    private final int speed;
+    private final int width;
+    private final int height;
+
+    public Spaceship(int width, int height, int speed) {
+        this.width = width;
+        this.height = height;
+        this.speed = speed;
+        this.setIcon(setImageIcon());
     }
 
-    //Getters and setters
-    public int getX() {
-        return x;
+    public void setBounds(int positionX, int positionY){
+        super.setBounds(positionX, positionY, width, height);
     }
 
-    public void setX(int x) {
-        this.x = x;
-    }
+    public int getSpeed() {return speed;}
 
-    public int getY() {
-        return y;
-    }
-
-    public void setY(int y) {
-        this.y = y;
+    private ImageIcon setImageIcon(){
+        try{
+            Image img = ImageIO.read(new File("space.invaders\\graphic\\enemy.png"));
+            return new ImageIcon(img.getScaledInstance(width, height, 0));
+        }catch (IOException e){System.out.println("Image not found!");}
+        return null;
     }
 }
