@@ -12,6 +12,7 @@ import java.util.Timer;
 public class GUI extends JFrame {
     private ArrayList<BulletPlayer> bullets;
     private ArrayList<Spaceship> enemies;
+    int direction;
 
     private final MainBodyPanel mainBodyPanel;
     private boolean left = false;
@@ -39,12 +40,13 @@ public class GUI extends JFrame {
         int x_enemy = 100;
         int y_enemy = 50;
         for (int i = 0; i < 3; i++) {
-            Spaceship enemy = new Spaceship(40,40,3);
+            Spaceship enemy = new Spaceship(60,44,3);
             enemy.setBackground(Color.BLUE);
             enemy.setBounds(x_enemy*i, y_enemy);
             enemies.add(enemy);
             mainBodyPanel.add(enemy);
         }
+        direction = -1 * enemies.get(0).getSpeed();
 
         //Bullets
         bullets = new ArrayList<BulletPlayer>();
@@ -118,6 +120,7 @@ public class GUI extends JFrame {
                     if (newPositionX >= 0 && newPositionX <= 750)
                         playerObject.setBounds(newPositionX, playerObject.getY());
                     bulletRemoveOnBorder();
+                    enemyMove();
                     Thread.sleep(20);
                 }
 
@@ -161,5 +164,17 @@ public class GUI extends JFrame {
         mainBodyPanel.revalidate();
         mainBodyPanel.repaint();
         return 0;
+    }
+    private void enemyMove(){
+        if (enemies.size() != 0){
+            if (enemies.get(0).getX() <= 0){
+                direction = enemies.get(0).getSpeed();
+            }else if(enemies.get(enemies.size()-1).getX() >= this.getWidth()-(enemies.get(enemies.size()-1).getWidth()*1.2)){
+                direction = -1 * enemies.get(0).getSpeed();
+            }
+            for (Spaceship enemy : enemies) {
+                enemy.setBounds(enemy.getX() + direction,enemy.getY(),enemy.getWidth(),enemy.getHeight());
+            }
+        }
     }
 }
