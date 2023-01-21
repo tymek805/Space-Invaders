@@ -1,73 +1,58 @@
 package gui;
 
 import logic.*;
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.ArrayList;
 import java.util.Random;
-import java.util.Timer;
 
 public class GUI extends JFrame {
-    private ArrayList<BulletPlayer> bullets;
-    private ArrayList<BulletSpaceship> enemyBullets;
-    private ArrayList<Spaceship> enemies;
-    int direction;
-    int indirectTime = 0;
-    boolean alivePlayer;
-
-    private final MainBodyPanel mainBodyPanel;
+    private final JPanel panel;
+    private final Player player;
+    private final ArrayList<Bullet> bullets = new ArrayList<>();
+    private final ArrayList<Enemy> enemies = new ArrayList<>();
+    private int direction;
+    private int indirectTime = 0;
     private boolean left = false;
     private boolean right = false;
-    private final Player playerObject;
-    private boolean interrupted = false;
+    private boolean alivePlayer = true;
     public GUI(){
         this.setTitle("Space Invaders");
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setSize(800,600);
+        this.setResizable(false);
         this.setLocationRelativeTo(null);
 
-        mainBodyPanel = new MainBodyPanel();
-        this.add(mainBodyPanel);
+        // Main panel
+        panel = new JPanel();
+        panel.setLayout(null);
+        panel.setBackground(Color.BLACK);
+        panel.setVisible(true);
+        this.add(panel);
 
         //Player
-        int x_Position = 400;
-        int y_Position = 500;
-        playerObject = new Player(40, 40, 5);
-        playerObject.setBounds(x_Position, y_Position);
-        mainBodyPanel.add(playerObject);
-        alivePlayer = true;
+        player = new Player(40, 40, 5, panel);
+        player.setBounds(380, 470);
+        panel.add(player);
 
         //Enemies
-        enemies = new ArrayList<Spaceship>();
-        int x_enemy = 100;
+        int x_enemy = 0;
         int y_enemy = 50;
-        for (int i = 0; i < 3; i++) {
-            Spaceship enemy = new Spaceship(60,44,3);
-            enemy.setBackground(Color.BLUE);
-            enemy.setBounds(x_enemy*i, y_enemy);
+        for (int j = 0; j < 11; j++) {
+            Enemy enemy = new Enemy(30,22,1, panel);
+            enemy.setBounds(x_enemy, y_enemy);
             enemies.add(enemy);
-            mainBodyPanel.add(enemy);
+            panel.add(enemy);
+            x_enemy += enemy.getWidth() * 1.5;
         }
         direction = -1 * enemies.get(0).getSpeed();
 
-        //Bullets
-        bullets = new ArrayList<BulletPlayer>();
-        enemyBullets = new ArrayList<BulletSpaceship>();
-
         // Timer
-        JLabel timeLabel = new JLabel();
-        timeLabel.setForeground(Color.CYAN);
-        timeLabel.setFont(new Font("Arial", Font.BOLD, 20));
-        timeLabel.setBounds(0,350,100,50);
-        java.util.Timer timer = new Timer();
-        gameTimer clock = new gameTimer(timeLabel);
-        timer.schedule(clock, 0, 1000);
-        this.add(timeLabel,BorderLayout.NORTH);
+        GameTimer gameTimer = new GameTimer();
+        this.add(gameTimer.getTimeLabel(),BorderLayout.NORTH);
 
-        this.setVisible(true);
         this.addKeyListener(new KeyListener() {
             @Override
             public void keyTyped(KeyEvent e) {}
@@ -82,13 +67,8 @@ public class GUI extends JFrame {
                     if (e.getKeyCode() == KeyEvent.VK_LEFT || e.getKeyCode() == KeyEvent.VK_A) left = true;
                     if (e.getKeyCode() == KeyEvent.VK_RIGHT || e.getKeyCode() == KeyEvent.VK_D) right = true;
 
-                    if (e.getKeyCode() == KeyEvent.VK_SPACE){
-                        BulletPlayer bulletP = new BulletPlayer(playerObject.getX()+((playerObject.getWidth()/2)),(playerObject.getY()-(playerObject.getHeight()/2)),9,new JLabel("|"),1);
-                        bulletP.setLabel();
-                        mainBodyPanel.add(bulletP.getBulletLabel());
-                        bullets.add(bulletP);
-                        mainBodyPanel.revalidate();
-                        mainBodyPanel.repaint();
+                    if (e.getKeyCode() == KeyEvent.VK_SPACE && player.getReloaded()){
+                        bullets.add(player.makeBullet());
                     }
                 }
 
@@ -98,27 +78,31 @@ public class GUI extends JFrame {
         new Thread(() -> {
             try {
                 while (true) {
-                    int newPositionX = playerObject.getX();
+                    int newPositionX = player.getX();
                     if (left)
-                        newPositionX -= playerObject.getSpeed();
+                        newPositionX -= player.getSpeed();
                     else if (right)
-                        newPositionX += playerObject.getSpeed();
+                        newPositionX += player.getSpeed();
 
                     if (newPositionX >= 0 && newPositionX <= 750)
-                        playerObject.setBounds(newPositionX, playerObject.getY());
-                    playerBulletRemoveOnBorder();
-                    enemyBulletRemoveOnBorder();
+                        player.setBounds(newPositionX, player.getY());
+
+                    removeBulletOnBorder();
                     enemyMove();
-                    int currentTimer = (int) (System.currentTimeMillis()-clock.getStartTime());
+                    playerHit();
+
+                    int currentTimer = (int) (System.currentTimeMillis() - gameTimer.getStartTime());
                     if (currentTimer - indirectTime >= 1000){
                         enemyShot();
                         indirectTime += currentTimer;
                     }
-                    int limit = enemies.size();
-                    for (int i = 0; i < limit; i++) {
-                        limit -= onHit(enemies.get(i));
+
+                    for (int i = 0; i < enemies.size(); i++) {
+                        enemyHit(enemies.get(i));
                     }
-                    playerHit(playerObject);
+
+                    panel.revalidate();
+                    panel.repaint();
                     Thread.sleep(20);
                 }
 
@@ -127,104 +111,55 @@ public class GUI extends JFrame {
                 System.exit(0);
             }
         }).start();
-
+        setVisible(true);
     }
-    private void playerBulletRemoveOnBorder(){
+    private boolean enemyHit(Enemy enemy){
         for (int i = 0; i < bullets.size(); i++) {
-            BulletPlayer bulletP = bullets.get(i);
-            JLabel bullet = bulletP.getBulletLabel();
-            bullet.setBounds(bullet.getX(),bullet.getY()-bulletP.getSpeedOfTheBullet(),5,40);
-            if (bullet.getY() == 0){
-                bullets.remove(bullet);
-                mainBodyPanel.remove(bullet);
-            }
-        }
-        mainBodyPanel.revalidate();
-        mainBodyPanel.repaint();
-    }
-    private int onHit(Spaceship enemy){
-        int x = enemy.getX();
-        int y = enemy.getY();
-        int width = enemy.getWidth();
-        int height = enemy.getHeight();
-
-        for (int i = 0; i < bullets.size(); i++) {
-            BulletPlayer bulletP = bullets.get(i);
-            JLabel bullet = bulletP.getBulletLabel();
-            if (bullet.getY() < (y+(height/2)) && bullet.getY() > y && bullet.getX() <= (x+width) && bullet.getX() > x){
+            Bullet bullet = bullets.get(i);
+            if (bullet.getDirection() == -1 && enemy.isHit(bullet)){
                 enemies.remove(enemy);
-                mainBodyPanel.remove(enemy);
                 bullets.remove(bullet);
-                mainBodyPanel.remove(bullet);
-                return 1;
+                return true;
             }
         }
-        mainBodyPanel.revalidate();
-        mainBodyPanel.repaint();
-        return 0;
+        return false;
     }
-    private void playerHit(Player player){
-        int x = player.getX();
-        int y = player.getY();
-        int width = player.getWidth();
-        int height = player.getHeight();
-
-        for (int i = 0; i < enemyBullets.size(); i++) {
-            BulletSpaceship bulletP = enemyBullets.get(i);
-            JLabel bullet = bulletP.getBulletLabel();
-            if ((bullet.getY()+bullet.getHeight()) > y && (bullet.getY()+bullet.getHeight()) < (y+height) && bullet.getX() <= (x+width) && bullet.getX() > x){
-                enemies.remove(player);
-                mainBodyPanel.remove(player);
-                bullets.remove(bullet);
-                mainBodyPanel.remove(bullet);
+    private void playerHit(){
+        for (int i = 0; i < bullets.size(); i++) {
+            Bullet bullet = bullets.get(i);
+            if (bullet.getDirection() == 1 && player.isHit(bullet)){
                 alivePlayer = false;
             }
         }
-        mainBodyPanel.revalidate();
-        mainBodyPanel.repaint();
     }
+
     private void enemyMove(){
         if (enemies.size() != 0){
             if (enemies.get(0).getX() <= 0){
                 direction = enemies.get(0).getSpeed();
-            }else if(enemies.get(enemies.size()-1).getX() >= this.getWidth()-(enemies.get(enemies.size()-1).getWidth()*1.2)){
+            }else if(enemies.get(enemies.size()-1).getX() >= this.getWidth() - (enemies.get(enemies.size()-1).getWidth() * 1.5)){
                 direction = -1 * enemies.get(0).getSpeed();
             }
-            for (Spaceship enemy : enemies) {
-                enemy.setBounds(enemy.getX() + direction,enemy.getY(),enemy.getWidth(),enemy.getHeight());
+
+            for (Enemy enemy : enemies) {
+                enemy.setBounds(enemy.getX() + direction, enemy.getY());
             }
         }
     }
     private void enemyShot(){
-        if (enemies.size() > 1){
-            Random rand = new Random();
-            int upperBound = enemies.size()-1;
-            int chooseShotingEnemy = rand.nextInt(upperBound);
-            shot(enemies.get(chooseShotingEnemy));
-        } else if (enemies.size() == 1) {
-            int chooseShotingEnemy = 0;
-            shot(enemies.get(chooseShotingEnemy));
-        }
+        int chooseShootingEnemy = 0;
+        if (enemies.size() > 1)
+            chooseShootingEnemy = new Random().nextInt(enemies.size() - 1);
+
+        bullets.add(enemies.get(chooseShootingEnemy).makeBullet());
     }
-    private void shot(Spaceship enemy){
-        BulletSpaceship bulletP = new BulletSpaceship(enemy.getX()+((enemy.getWidth()/2)),(enemy.getY()+(enemy.getHeight()/2)),9,new JLabel("|"),1);
-        bulletP.setLabel();
-        mainBodyPanel.add(bulletP.getBulletLabel());
-        enemyBullets.add(bulletP);
-        mainBodyPanel.revalidate();
-        mainBodyPanel.repaint();
-    }
-    private void enemyBulletRemoveOnBorder(){
-        for (int i = 0; i < enemyBullets.size(); i++) {
-            BulletSpaceship bulletE = enemyBullets.get(i);
-            JLabel bullet = bulletE.getBulletLabel();
-            bullet.setBounds(bullet.getX(),bullet.getY()+bulletE.getSpeedOfTheBullet(),5,40);
-            if (bullet.getY() > this.getHeight()){
-                enemyBullets.remove(bullet);
-                mainBodyPanel.remove(bullet);
+    private void removeBulletOnBorder(){
+        for (int i = 0; i < bullets.size(); i++) {
+            bullets.get(i).move();
+            if (!(panel.getBounds().intersects(bullets.get(i).getBounds()))){
+                panel.remove(bullets.get(i));
+                bullets.remove(bullets.get(i));
             }
         }
-        mainBodyPanel.revalidate();
-        mainBodyPanel.repaint();
     }
 }

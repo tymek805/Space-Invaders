@@ -1,39 +1,28 @@
 package logic;
 
 import javax.swing.*;
+import java.awt.*;
 
-public abstract class Bullet {
-    private int x;
-    private int y;
-    private int speedOfTheBullet;
+public class Bullet extends JLabel{
+    private final int x;
+    private final int speedOfTheBullet;
+    private final int direction;
+    private final int width = 5;
+    private final int height = 40;
 
-    public Bullet(int x, int y, int speedOfTheBullet) {
+    public Bullet(int x, int y, int speedOfTheBullet, int direction) {
         this.x = x;
-        this.y = y;
         this.speedOfTheBullet = speedOfTheBullet;
+        this.direction = direction;
+
+        this.setText("|");
+        this.setForeground(Color.RED);
+        this.setBounds(x, y, width, height);
     }
 
-    public int getX() {
-        return x;
+    public void move(){
+        this.setBounds(x, getY() + (speedOfTheBullet * direction), width, height);
     }
 
-    public void setX(int x) {
-        this.x = x;
-    }
-
-    public int getY() {
-        return y;
-    }
-
-    public void setY(int y) {
-        this.y = y;
-    }
-
-    public int getSpeedOfTheBullet() {
-        return speedOfTheBullet;
-    }
-
-    public void setSpeedOfTheBullet(int speedOfTheBullet) {
-        this.speedOfTheBullet = speedOfTheBullet;
-    }
+    public int getDirection() {return direction;}
 }
