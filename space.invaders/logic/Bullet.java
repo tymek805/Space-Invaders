@@ -3,7 +3,7 @@ package logic;
 import javax.swing.*;
 import java.awt.*;
 
-public class Bullet extends JLabel{
+public class Bullet extends JLabel {
     private final int x;
     private final int speedOfTheBullet;
     private final int direction;
@@ -20,9 +20,11 @@ public class Bullet extends JLabel{
         this.setBounds(x, y, width, height);
     }
 
-    public void move(){
+    public void move() {
         this.setBounds(x, getY() + (speedOfTheBullet * direction), width, height);
     }
 
-    public int getDirection() {return direction;}
+    public int getDirection() {
+        return direction;
+    }
 }

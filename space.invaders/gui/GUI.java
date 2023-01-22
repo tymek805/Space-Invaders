@@ -18,10 +18,11 @@ public class GUI extends JFrame {
     private boolean left = false;
     private boolean right = false;
     private boolean alivePlayer = true;
-    public GUI(){
+
+    public GUI() {
         this.setTitle("Space Invaders");
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        this.setSize(800,600);
+        this.setSize(800, 600);
         this.setResizable(false);
         this.setLocationRelativeTo(null);
 
@@ -32,16 +33,16 @@ public class GUI extends JFrame {
         panel.setVisible(true);
         this.add(panel);
 
-        //Player
+        // Player
         player = new Player(40, 40, 5, panel);
         player.setBounds(380, 470);
         panel.add(player);
 
-        //Enemies
+        // Enemies
         int x_enemy = 0;
         int y_enemy = 50;
         for (int j = 0; j < 11; j++) {
-            Enemy enemy = new Enemy(30,22,1, panel);
+            Enemy enemy = new Enemy(30, 22, 1, panel);
             enemy.setBounds(x_enemy, y_enemy);
             enemies.add(enemy);
             panel.add(enemy);
@@ -51,23 +52,30 @@ public class GUI extends JFrame {
 
         // Timer
         GameTimer gameTimer = new GameTimer();
-        this.add(gameTimer.getTimeLabel(),BorderLayout.NORTH);
+        this.add(gameTimer.getTimeLabel(), BorderLayout.NORTH);
 
         this.addKeyListener(new KeyListener() {
             @Override
-            public void keyTyped(KeyEvent e) {}
+            public void keyTyped(KeyEvent e) {
+            }
+
             @Override
             public void keyReleased(KeyEvent e) {
-                if (e.getKeyCode() == KeyEvent.VK_LEFT || e.getKeyCode() == KeyEvent.VK_A) left = false;
-                if (e.getKeyCode() == KeyEvent.VK_RIGHT || e.getKeyCode() == KeyEvent.VK_D) right = false;
+                if (e.getKeyCode() == KeyEvent.VK_LEFT || e.getKeyCode() == KeyEvent.VK_A)
+                    left = false;
+                if (e.getKeyCode() == KeyEvent.VK_RIGHT || e.getKeyCode() == KeyEvent.VK_D)
+                    right = false;
             }
+
             @Override
             public void keyPressed(KeyEvent e) {
-                if (alivePlayer){
-                    if (e.getKeyCode() == KeyEvent.VK_LEFT || e.getKeyCode() == KeyEvent.VK_A) left = true;
-                    if (e.getKeyCode() == KeyEvent.VK_RIGHT || e.getKeyCode() == KeyEvent.VK_D) right = true;
+                if (alivePlayer) {
+                    if (e.getKeyCode() == KeyEvent.VK_LEFT || e.getKeyCode() == KeyEvent.VK_A)
+                        left = true;
+                    if (e.getKeyCode() == KeyEvent.VK_RIGHT || e.getKeyCode() == KeyEvent.VK_D)
+                        right = true;
 
-                    if (e.getKeyCode() == KeyEvent.VK_SPACE && player.getReloaded()){
+                    if (e.getKeyCode() == KeyEvent.VK_SPACE && player.getReloaded()) {
                         bullets.add(player.makeBullet());
                     }
                 }
@@ -92,13 +100,19 @@ public class GUI extends JFrame {
                     playerHit();
 
                     int currentTimer = (int) (System.currentTimeMillis() - gameTimer.getStartTime());
-                    if (currentTimer - indirectTime >= 1000){
+                    if (currentTimer - indirectTime >= 1000) {
                         enemyShot();
                         indirectTime += currentTimer;
                     }
 
                     for (int i = 0; i < enemies.size(); i++) {
                         enemyHit(enemies.get(i));
+                        winConditions();
+                    }
+
+                    if (alivePlayer == false) {
+                        loseConditions();
+                        break;
                     }
 
                     panel.revalidate();
@@ -113,31 +127,35 @@ public class GUI extends JFrame {
         }).start();
         setVisible(true);
     }
-    private boolean enemyHit(Enemy enemy){
+
+    private boolean enemyHit(Enemy enemy) {
         for (int i = 0; i < bullets.size(); i++) {
             Bullet bullet = bullets.get(i);
-            if (bullet.getDirection() == -1 && enemy.isHit(bullet)){
+            if (bullet.getDirection() == -1 && enemy.isHit(bullet)) {
                 enemies.remove(enemy);
                 bullets.remove(bullet);
                 return true;
             }
         }
+
         return false;
     }
-    private void playerHit(){
+
+    private void playerHit() {
         for (int i = 0; i < bullets.size(); i++) {
             Bullet bullet = bullets.get(i);
-            if (bullet.getDirection() == 1 && player.isHit(bullet)){
+            if (bullet.getDirection() == 1 && player.isHit(bullet)) {
                 alivePlayer = false;
             }
         }
     }
 
-    private void enemyMove(){
-        if (enemies.size() != 0){
-            if (enemies.get(0).getX() <= 0){
+    private void enemyMove() {
+        if (enemies.size() != 0) {
+            if (enemies.get(0).getX() <= 0) {
                 direction = enemies.get(0).getSpeed();
-            }else if(enemies.get(enemies.size()-1).getX() >= this.getWidth() - (enemies.get(enemies.size()-1).getWidth() * 1.5)){
+            } else if (enemies.get(enemies.size() - 1).getX() >= this.getWidth()
+                    - (enemies.get(enemies.size() - 1).getWidth() * 1.5)) {
                 direction = -1 * enemies.get(0).getSpeed();
             }
 
@@ -146,20 +164,34 @@ public class GUI extends JFrame {
             }
         }
     }
-    private void enemyShot(){
+
+    private void enemyShot() {
         int chooseShootingEnemy = 0;
         if (enemies.size() > 1)
             chooseShootingEnemy = new Random().nextInt(enemies.size() - 1);
 
         bullets.add(enemies.get(chooseShootingEnemy).makeBullet());
     }
-    private void removeBulletOnBorder(){
+
+    private void removeBulletOnBorder() {
         for (int i = 0; i < bullets.size(); i++) {
             bullets.get(i).move();
-            if (!(panel.getBounds().intersects(bullets.get(i).getBounds()))){
+            if (!(panel.getBounds().intersects(bullets.get(i).getBounds()))) {
                 panel.remove(bullets.get(i));
                 bullets.remove(bullets.get(i));
             }
         }
+    }
+
+    private void winConditions() {
+        if (enemies.size() == 0) {
+            JOptionPane.showMessageDialog(this, "YOU WON!");
+            this.dispose();
+        }
+    }
+
+    private void loseConditions() {
+        JOptionPane.showMessageDialog(this, "YOU LOST...");
+        dispose();
     }
 }

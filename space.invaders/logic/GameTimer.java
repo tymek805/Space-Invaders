@@ -12,9 +12,13 @@ public class GameTimer extends TimerTask {
 
     public GameTimer() {
         timeLabel = new JLabel();
-        timeLabel.setForeground(Color.CYAN);
+        timeLabel.setForeground(Color.GREEN);
+        timeLabel.setOpaque(true);
+        timeLabel.setBackground(Color.black);
+        timeLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        timeLabel.setVerticalAlignment(SwingConstants.CENTER);
         timeLabel.setFont(new Font("Arial", Font.BOLD, 20));
-        timeLabel.setBounds(0,350,100,50);
+        timeLabel.setBounds(0, 350, 100, 50);
 
         java.util.Timer timer = new Timer();
         timer.schedule(this, 0, 1000);
@@ -27,8 +31,12 @@ public class GameTimer extends TimerTask {
             timeLabel.setText(new SimpleDateFormat("mm:ss").format(elapsedTime));
         });
     }
+
     public long getStartTime() {
         return startTime;
     }
-    public JLabel getTimeLabel() {return timeLabel;}
+
+    public JLabel getTimeLabel() {
+        return timeLabel;
+    }
 }

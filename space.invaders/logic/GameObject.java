@@ -21,16 +21,16 @@ public abstract class GameObject extends JLabel {
         setIcon(setImageIcon(src));
     }
 
-    public Bullet makeBullet(){
+    public Bullet makeBullet() {
         Bullet bullet = new Bullet(getX() + (width / 2) - 1, getY() + direction * height / 2, bulletSpeed, direction);
         panel.add(bullet);
         return bullet;
     }
 
-    public boolean isHit(Bullet bullet){
+    public boolean isHit(Bullet bullet) {
         Rectangle r1 = this.getBounds();
         Rectangle r2 = bullet.getBounds();
-        if (r1.intersects(r2)){
+        if (r1.intersects(r2)) {
             panel.remove(bullet);
             panel.remove(this);
         }
@@ -38,16 +38,25 @@ public abstract class GameObject extends JLabel {
     }
 
     @Override
-    public int getWidth() {return width;}
-    public int getSpeed() {return speed;}
-    public void setBounds(int positionX, int positionY){
+    public int getWidth() {
+        return width;
+    }
+
+    public int getSpeed() {
+        return speed;
+    }
+
+    public void setBounds(int positionX, int positionY) {
         super.setBounds(positionX, positionY, width, height);
     }
-    private ImageIcon setImageIcon(String src){
-        try{
+
+    private ImageIcon setImageIcon(String src) {
+        try {
             Image img = ImageIO.read(new File("space.invaders\\graphic\\" + src));
             return new ImageIcon(img.getScaledInstance(width, height, 1));
-        }catch (IOException e){System.out.println("Image not found!");}
+        } catch (IOException e) {
+            System.out.println("Image not found!");
+        }
         return null;
     }
 }

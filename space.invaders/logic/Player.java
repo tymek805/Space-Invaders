@@ -9,21 +9,27 @@ public class Player extends GameObject {
         super(width, height, speed, panel, "starship.png", -1);
     }
 
-    public Bullet makeBullet(){
-        if (reloaded){
+    public Bullet makeBullet() {
+        if (reloaded) {
             reloading();
             return super.makeBullet();
         }
         return null;
     }
-    public boolean getReloaded(){return reloaded;}
-    private void reloading(){
+
+    public boolean getReloaded() {
+        return reloaded;
+    }
+
+    private void reloading() {
         reloaded = false;
         new Thread(() -> {
-            try{
-                Thread.sleep(1000);
+            try {
+                Thread.sleep(300);
                 reloaded = true;
-            }catch (InterruptedException ignored){};
+            } catch (InterruptedException ignored) {
+            }
+            ;
         }).start();
     }
 }
