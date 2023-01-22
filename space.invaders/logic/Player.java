@@ -1,25 +1,35 @@
 package logic;
 
-public class Player {
+import javax.swing.*;
 
-    private int xPos;
-    public int speed;
+public class Player extends GameObject {
+    private boolean reloaded = true;
 
-    public Player(int xPos, int speed) {
-        this.xPos = xPos;
-        this.speed = speed;
+    public Player(int width, int height, int speed, JPanel panel) {
+        super(width, height, speed, panel, "starship.png", -1);
     }
 
-    public void shoot() {
-
+    public Bullet makeBullet() {
+        if (reloaded) {
+            reloading();
+            return super.makeBullet();
+        }
+        return null;
     }
 
-    // Getters and setters
-    public int getX() {
-        return xPos;
+    public boolean getReloaded() {
+        return reloaded;
     }
 
-    public void setX(int xPos) {
-        this.xPos = xPos;
+    private void reloading() {
+        reloaded = false;
+        new Thread(() -> {
+            try {
+                Thread.sleep(300);
+                reloaded = true;
+            } catch (InterruptedException ignored) {
+            }
+            ;
+        }).start();
     }
 }

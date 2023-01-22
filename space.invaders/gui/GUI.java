@@ -1,119 +1,197 @@
 package gui;
 
-import logic.Player;
-import logic.gameTimer;
-
+import logic.*;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.util.Timer;
+import java.util.ArrayList;
+import java.util.Random;
 
-public class GUI extends JFrame implements KeyListener {
-    MainBodyPanel mainBodyPanel;
-    JLabel player;
-    JLabel timeLabel;
-    final int player_width = 40;
-    final int player_height = 40;
-    int x_position = 400;
-    final int y_position = 500;
-    // New motion
+public class GUI extends JFrame {
+    private final JPanel panel;
+    private final Player player;
+    private final ArrayList<Bullet> bullets = new ArrayList<>();
+    private final ArrayList<Enemy> enemies = new ArrayList<>();
+    private int direction;
+    private int indirectTime = 0;
     private boolean left = false;
     private boolean right = false;
-    private boolean shotPlayer = false;
+    private boolean alivePlayer = true;
 
     public GUI() {
         this.setTitle("Space Invaders");
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        this.setLayout(new BorderLayout());
         this.setSize(800, 600);
+        this.setResizable(false);
+        this.setLocationRelativeTo(null);
 
-        // mainBody
-        mainBodyPanel = new MainBodyPanel();
-        this.add(mainBodyPanel, BorderLayout.CENTER);
+        // Main panel
+        panel = new JPanel();
+        panel.setLayout(null);
+        panel.setBackground(Color.BLACK);
+        panel.setVisible(true);
+        this.add(panel);
 
-        // player
-        Player player1 = new Player(400, 5);
-        player = new JLabel("Statek");
-        // TODO:resize the player icon to sth around 60-80px and change icon source
-        // image place to graphic folder
-        player.setIcon(new ImageIcon(getClass().getResource("playerLabel.png")));
-        player.setBounds(x_position, y_position, player_width, player_height);
-        mainBodyPanel.add(player);
+        // Player
+        player = new Player(40, 40, 5, panel);
+        player.setBounds(380, 470);
+        panel.add(player);
 
-        // timer
-        timeLabel = new JLabel();
-        timeLabel.setForeground(Color.CYAN);
-        timeLabel.setFont(new Font("Arial", Font.BOLD, 20));
-        timeLabel.setBounds(0, 350, 100, 50);
-        java.util.Timer timer = new Timer();
-        timer.schedule(new gameTimer(timeLabel), 0, 1000);
-        this.add(timeLabel, BorderLayout.NORTH);
+        // Enemies
+        int x_enemy = 0;
+        int y_enemy = 50;
+        for (int j = 0; j < 11; j++) {
+            Enemy enemy = new Enemy(30, 22, 1, panel);
+            enemy.setBounds(x_enemy, y_enemy);
+            enemies.add(enemy);
+            panel.add(enemy);
+            x_enemy += enemy.getWidth() * 1.5;
+        }
+        direction = -1 * enemies.get(0).getSpeed();
 
-        this.addKeyListener(this);
-        this.setVisible(true);
-        addKeyListener(new KeyListener() {
+        // Timer
+        GameTimer gameTimer = new GameTimer();
+        this.add(gameTimer.getTimeLabel(), BorderLayout.NORTH);
+
+        this.addKeyListener(new KeyListener() {
             @Override
             public void keyTyped(KeyEvent e) {
             }
 
             @Override
             public void keyReleased(KeyEvent e) {
-                if (e.getKeyCode() == KeyEvent.VK_LEFT)
+                if (e.getKeyCode() == KeyEvent.VK_LEFT || e.getKeyCode() == KeyEvent.VK_A)
                     left = false;
-                if (e.getKeyCode() == KeyEvent.VK_RIGHT)
+                if (e.getKeyCode() == KeyEvent.VK_RIGHT || e.getKeyCode() == KeyEvent.VK_D)
                     right = false;
             }
 
             @Override
             public void keyPressed(KeyEvent e) {
-                if (e.getKeyCode() == KeyEvent.VK_LEFT)
-                    left = true;
-                if (e.getKeyCode() == KeyEvent.VK_RIGHT)
-                    right = true;
-                if (e.getKeyCode() == KeyEvent.VK_SPACE) {
-                    JLabel bulletLabel = new JLabel("|");
-                    bulletLabel.setForeground(Color.RED);
-                    bulletLabel.setBounds(player.getX() + ((player_width / 2) - (bulletLabel.getWidth() / 2)),
-                            (player.getY() - (player_height / 2)), 5, 40);
-                    mainBodyPanel.add(bulletLabel);
-                    mainBodyPanel.repaint();
+                if (alivePlayer) {
+                    if (e.getKeyCode() == KeyEvent.VK_LEFT || e.getKeyCode() == KeyEvent.VK_A)
+                        left = true;
+                    if (e.getKeyCode() == KeyEvent.VK_RIGHT || e.getKeyCode() == KeyEvent.VK_D)
+                        right = true;
+
+                    if (e.getKeyCode() == KeyEvent.VK_SPACE && player.getReloaded()) {
+                        bullets.add(player.makeBullet());
+                    }
                 }
+
             }
         });
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
 
-                    while (true) {
-                        if (left) {
-                            player.setBounds(player.getX() - player1.speed, player.getY(), player_width, player_height);
-                        } else if (right) {
-                            player.setBounds(player.getX() + player1.speed, player.getY(), player_width, player_height);
-                        }
-                        Thread.sleep(30);
+        new Thread(() -> {
+            try {
+                while (true) {
+                    int newPositionX = player.getX();
+                    if (left)
+                        newPositionX -= player.getSpeed();
+                    else if (right)
+                        newPositionX += player.getSpeed();
+
+                    if (newPositionX >= 0 && newPositionX <= 750)
+                        player.setBounds(newPositionX, player.getY());
+
+                    removeBulletOnBorder();
+                    enemyMove();
+                    playerHit();
+
+                    int currentTimer = (int) (System.currentTimeMillis() - gameTimer.getStartTime());
+                    if (currentTimer - indirectTime >= 1000) {
+                        enemyShot();
+                        indirectTime += currentTimer;
                     }
 
-                } catch (Exception ex) {
-                    ex.printStackTrace();
-                    System.exit(0);
+                    for (int i = 0; i < enemies.size(); i++) {
+                        enemyHit(enemies.get(i));
+                        winConditions();
+                    }
+
+                    if (alivePlayer == false) {
+                        loseConditions();
+                        break;
+                    }
+
+                    panel.revalidate();
+                    panel.repaint();
+                    Thread.sleep(20);
                 }
+
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                System.exit(0);
             }
         }).start();
+        setVisible(true);
     }
 
-    @Override
-    public void keyTyped(KeyEvent e) {
+    private boolean enemyHit(Enemy enemy) {
+        for (int i = 0; i < bullets.size(); i++) {
+            Bullet bullet = bullets.get(i);
+            if (bullet.getDirection() == -1 && enemy.isHit(bullet)) {
+                enemies.remove(enemy);
+                bullets.remove(bullet);
+                return true;
+            }
+        }
 
+        return false;
     }
 
-    @Override
-    public void keyPressed(KeyEvent e) {
+    private void playerHit() {
+        for (int i = 0; i < bullets.size(); i++) {
+            Bullet bullet = bullets.get(i);
+            if (bullet.getDirection() == 1 && player.isHit(bullet)) {
+                alivePlayer = false;
+            }
+        }
     }
 
-    @Override
-    public void keyReleased(KeyEvent e) {
+    private void enemyMove() {
+        if (enemies.size() != 0) {
+            if (enemies.get(0).getX() <= 0) {
+                direction = enemies.get(0).getSpeed();
+            } else if (enemies.get(enemies.size() - 1).getX() >= this.getWidth()
+                    - (enemies.get(enemies.size() - 1).getWidth() * 1.5)) {
+                direction = -1 * enemies.get(0).getSpeed();
+            }
 
+            for (Enemy enemy : enemies) {
+                enemy.setBounds(enemy.getX() + direction, enemy.getY());
+            }
+        }
+    }
+
+    private void enemyShot() {
+        int chooseShootingEnemy = 0;
+        if (enemies.size() > 1)
+            chooseShootingEnemy = new Random().nextInt(enemies.size() - 1);
+
+        bullets.add(enemies.get(chooseShootingEnemy).makeBullet());
+    }
+
+    private void removeBulletOnBorder() {
+        for (int i = 0; i < bullets.size(); i++) {
+            bullets.get(i).move();
+            if (!(panel.getBounds().intersects(bullets.get(i).getBounds()))) {
+                panel.remove(bullets.get(i));
+                bullets.remove(bullets.get(i));
+            }
+        }
+    }
+
+    private void winConditions() {
+        if (enemies.size() == 0) {
+            JOptionPane.showMessageDialog(this, "YOU WON!");
+            this.dispose();
+        }
+    }
+
+    private void loseConditions() {
+        JOptionPane.showMessageDialog(this, "YOU LOST...");
+        dispose();
     }
 }
