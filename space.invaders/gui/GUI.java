@@ -5,6 +5,9 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -18,12 +21,14 @@ public class GUI extends JFrame {
     private boolean left = false;
     private boolean right = false;
     private boolean alivePlayer = true;
-
+    //Fonts
+    Font sevenSegmentsFont = null;
+    Font pixeloidSansFont = null;
     public GUI() {
         this.setTitle("Space Invaders");
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setSize(800, 600);
-        this.setSize(600,600);
+        this.setSize(600, 600);
         this.setResizable(false);
         this.setLocationRelativeTo(null);
 
@@ -41,10 +46,10 @@ public class GUI extends JFrame {
 
         // Enemies
         int y_enemy = 50;
-        for (int i = 0; i < 5; i++){
+        for (int i = 0; i < 5; i++) {
             int x_enemy = 0;
             for (int j = 0; j < 11; j++) {
-                Enemy enemy = new Enemy(30,22,1, panel);
+                Enemy enemy = new Enemy(30, 22, 1, panel);
                 enemy.setBounds(x_enemy, y_enemy);
                 enemies.add(enemy);
                 panel.add(enemy);
@@ -58,21 +63,37 @@ public class GUI extends JFrame {
         GameTimer gameTimer = new GameTimer();
         this.add(gameTimer.getTimeLabel(), BorderLayout.NORTH);
 
+        //Font
+        try {
+            pixeloidSansFont = Font.createFont(Font.TRUETYPE_FONT, new File("space.invaders\\Fonts\\pixeloidSans.ttf")).deriveFont(30f);
+            sevenSegmentsFont = Font.createFont(Font.TRUETYPE_FONT, new File("space.invaders\\Fonts\\sevenSegment.ttf")).deriveFont(30f);
+            GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+            ge.registerFont(sevenSegmentsFont);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (FontFormatException e) {
+            e.printStackTrace();
+        }
+        gameTimer.getTimeLabel().setFont(sevenSegmentsFont);
+
         this.addKeyListener(new KeyListener() {
             @Override
-            public void keyTyped(KeyEvent e) {}
+            public void keyTyped(KeyEvent e) {
+            }
+
             @Override
             public void keyReleased(KeyEvent e) {
                 if (e.getKeyCode() == KeyEvent.VK_LEFT || e.getKeyCode() == KeyEvent.VK_A) left = false;
                 if (e.getKeyCode() == KeyEvent.VK_RIGHT || e.getKeyCode() == KeyEvent.VK_D) right = false;
             }
+
             @Override
             public void keyPressed(KeyEvent e) {
-                if (alivePlayer){
+                if (alivePlayer) {
                     if (e.getKeyCode() == KeyEvent.VK_LEFT || e.getKeyCode() == KeyEvent.VK_A) left = true;
                     if (e.getKeyCode() == KeyEvent.VK_RIGHT || e.getKeyCode() == KeyEvent.VK_D) right = true;
 
-                    if (e.getKeyCode() == KeyEvent.VK_SPACE && player.getReloaded()){
+                    if (e.getKeyCode() == KeyEvent.VK_SPACE && player.getReloaded()) {
                         bullets.add(player.makeBullet());
                     }
                 }
@@ -145,13 +166,13 @@ public class GUI extends JFrame {
         }
     }
     private void enemyShot(int shootDelay){
-        if (shootDelay - indirectTime >= 1000){
+        if ((shootDelay - indirectTime) > 200){
             int chooseShootingEnemy = 0;
             if (enemies.size() > 1)
                 chooseShootingEnemy = new Random().nextInt(enemies.size() - 1);
 
             bullets.add(enemies.get(chooseShootingEnemy).makeBullet());
-            indirectTime += shootDelay;
+            indirectTime += (shootDelay - indirectTime);
         }
     }
 
@@ -166,11 +187,15 @@ public class GUI extends JFrame {
     }
     private void winConditions() {
         if (enemies.size() == 0){
-            JOptionPane.showMessageDialog(this, "YOU WON!");
+            JLabel label = new JLabel("YOU WON!");
+            label.setFont(new Font( "pixeloidSansFont", Font.BOLD, 22));
+            JOptionPane.showMessageDialog(null,label,"NOOB",JOptionPane.WARNING_MESSAGE);
             dispose();
         }
         else if (!alivePlayer){
-            JOptionPane.showMessageDialog(this, "YOU LOST...");
+            JLabel label = new JLabel("YOU LOST...");
+            label.setFont(new Font( "pixeloidSansFont", Font.BOLD, 22));
+            JOptionPane.showMessageDialog(null,label,"NOOB",JOptionPane.WARNING_MESSAGE);
             dispose();
         }
     }
