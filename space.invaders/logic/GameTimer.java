@@ -2,8 +2,6 @@ package logic;
 
 import javax.swing.*;
 import java.awt.*;
-import java.io.File;
-import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -33,7 +31,6 @@ public class GameTimer extends TimerTask {
             timeLabel.setText(new SimpleDateFormat("mm:ss").format(elapsedTime));
         });
     }
-
     public long getStartTime() {
         return startTime;
     }

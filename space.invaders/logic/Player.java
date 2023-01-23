@@ -23,7 +23,7 @@ public class Player extends GameObject {
         else if (right)
             newPositionX += getSpeed();
 
-        if (newPositionX >= 0 && newPositionX <= 750)
+        if (newPositionX >= 0 && newPositionX <= 545)
             setBounds(newPositionX, getY());
     }
     public boolean getReloaded(){return reloaded;}
@@ -31,7 +31,7 @@ public class Player extends GameObject {
         reloaded = false;
         new Thread(() -> {
             try {
-                Thread.sleep(1000);
+                Thread.sleep(700);
                 reloaded = true;
             }catch (InterruptedException ignored){};
         }).start();
