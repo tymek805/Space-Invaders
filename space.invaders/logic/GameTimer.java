@@ -37,7 +37,6 @@ public class GameTimer extends TimerTask {
     public long getStartTime() {
         return startTime;
     }
-
     public JLabel getTimeLabel() {
         return timeLabel;
     }

@@ -82,24 +82,17 @@ public class GUI extends JFrame {
 
         new Thread(() -> {
             try {
-                while (true) {
+                while (alivePlayer) {
                     player.move(left, right);
                     enemyMove();
                     removeBulletOnBorder();
                     enemyShot((int) (System.currentTimeMillis() - gameTimer.getStartTime()));
-
                     playerHit();
 
                     for (int i = 0; i < enemies.size(); i++) {
                         enemyHit(enemies.get(i));
-                        winConditions();
                     }
-
-                    if (alivePlayer == false) {
-                        loseConditions();
-                        break;
-                    }
-
+                    winConditions();
                     panel.revalidate();
                     panel.repaint();
                     Thread.sleep(20);
@@ -112,16 +105,14 @@ public class GUI extends JFrame {
         }).start();
         setVisible(true);
     }
-    private boolean enemyHit(Enemy enemy){
+    private void enemyHit(Enemy enemy){
         for (int i = 0; i < bullets.size(); i++) {
             Bullet bullet = bullets.get(i);
             if (bullet.getDirection() == -1 && enemy.isHit(bullet)){
                 enemies.remove(enemy);
                 bullets.remove(bullet);
-                return true;
             }
         }
-        return false;
     }
     private void playerHit(){
         for (int i = 0; i < bullets.size(); i++) {
@@ -134,9 +125,17 @@ public class GUI extends JFrame {
 
     private void enemyMove(){
         if (enemies.size() != 0){
-            if (enemies.get(0).getX() <= 0){
+            int positionLeft = enemies.get(0).getX();
+            int positionRight = enemies.get(enemies.size()-1).getX();
+
+            for (int i = 0; i < enemies.size(); i++){
+                if (positionLeft > enemies.get(i).getX()){ positionLeft = enemies.get(i).getX();}
+                if (positionRight < enemies.get(i).getX()) { positionRight = enemies.get(i).getX();}
+            }
+
+            if (positionLeft <= 0){
                 direction = enemies.get(0).getSpeed();
-            }else if(enemies.get(enemies.size()-1).getX() >= this.getWidth() - (enemies.get(enemies.size()-1).getWidth() * 1.5)){
+            }else if(positionRight >= this.getWidth() - (enemies.get(0).getWidth() * 1.5)){
                 direction = -1 * enemies.get(0).getSpeed();
             }
 
@@ -165,16 +164,14 @@ public class GUI extends JFrame {
             }
         }
     }
-
     private void winConditions() {
-        if (enemies.size() == 0) {
+        if (enemies.size() == 0){
             JOptionPane.showMessageDialog(this, "YOU WON!");
-            this.dispose();
+            dispose();
         }
-    }
-
-    private void loseConditions() {
-        JOptionPane.showMessageDialog(this, "YOU LOST...");
-        dispose();
+        else if (!alivePlayer){
+            JOptionPane.showMessageDialog(this, "YOU LOST...");
+            dispose();
+        }
     }
 }
