@@ -2,6 +2,8 @@ package logic;
 
 import javax.swing.*;
 import java.awt.*;
+import java.io.File;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Timer;
 import java.util.TimerTask;
