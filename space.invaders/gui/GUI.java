@@ -6,13 +6,13 @@ import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Random;
 
 public class GUI extends JFrame {
     private final JPanel panel;
     private final Player player;
+    private Settings settingsWindow;
     private final ArrayList<Bullet> bullets = new ArrayList<>();
     private final ArrayList<Enemy> enemies = new ArrayList<>();
     private int direction;
@@ -20,7 +20,7 @@ public class GUI extends JFrame {
     private boolean left = false;
     private boolean right = false;
     private boolean isGameRunning = true;
-    private Music ms;
+    private Music musicPlayer;
 
     //Fonts
     Font sevenSegmentsFont = null;
@@ -40,9 +40,13 @@ public class GUI extends JFrame {
         panel.setVisible(true);
         this.add(panel);
 
+        // Settings
+        settingsWindow = new Settings();
+        settingsWindow.setVisible(false);
+
         //Music
-        ms = new Music("space.invaders\\sfx\\BITsy.wav");
-        ms.play();
+        musicPlayer = new Music("space.invaders\\sfx\\BITsy.wav");
+        musicPlayer.play();
 
         // Player
         player = new Player(40, 40, 5, panel);
@@ -94,14 +98,21 @@ public class GUI extends JFrame {
                     if (e.getKeyCode() == KeyEvent.VK_SPACE && player.getReloaded()){
                         bullets.add(player.makeBullet());
                     }
-                }
 
+                    if (e.getKeyCode() == KeyEvent.VK_ESCAPE && settingsWindow.isVisible() == false){
+                        settingsWindow.setVisible(true);
+                        setGameRunning(false);
+                    } else if(e.getKeyCode() == KeyEvent.VK_ESCAPE && settingsWindow.isVisible() == true){
+                        settingsWindow.setVisible(false);
+                        setGameRunning(true);
+                    }
+                }
             }
         });
 
         new Thread(() -> {
             try {
-                while (isGameRunning) {
+                while (isGameRunning == true) {
                     player.move(left, right);
                     enemyMove();
                     removeBulletOnBorder();
@@ -111,10 +122,17 @@ public class GUI extends JFrame {
                     for (int i = 0; i < enemies.size(); i++) {
                         enemyHit(enemies.get(i));
                     }
+                    
                     winConditions();
                     panel.revalidate();
                     panel.repaint();
                     Thread.sleep(20);
+                }
+
+                while (isGameRunning == false){
+                    panel.revalidate();
+                    panel.repaint();
+                    Thread.sleep(20); 
                 }
 
             } catch (Exception ex) {
@@ -138,7 +156,7 @@ public class GUI extends JFrame {
             Bullet bullet = bullets.get(i);
             if (bullet.getDirection() == 1 && player.isHit(bullet)){
                 isGameRunning = false;
-                ms.stop();
+                musicPlayer.stop();
             }
         }
     }
@@ -200,5 +218,12 @@ public class GUI extends JFrame {
             this.dispose();
             isGameRunning = false;
         }
+    }
+
+    public boolean isGameRunning() {
+        return isGameRunning;
+    }
+    public void setGameRunning(boolean isGameRunning) {
+        this.isGameRunning = isGameRunning;
     }
 }
