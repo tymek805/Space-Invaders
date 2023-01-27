@@ -20,6 +20,7 @@ public class GUI extends JFrame {
     private boolean left = false;
     private boolean right = false;
     private boolean isGameRunning = true;
+    private Music ms;
 
     //Fonts
     Font sevenSegmentsFont = null;
@@ -38,6 +39,10 @@ public class GUI extends JFrame {
         panel.setBackground(Color.BLACK);
         panel.setVisible(true);
         this.add(panel);
+
+        //Music
+        ms = new Music("space.invaders\\sfx\\BITsy.wav");
+        ms.play();
 
         // Player
         player = new Player(40, 40, 5, panel);
@@ -133,6 +138,7 @@ public class GUI extends JFrame {
             Bullet bullet = bullets.get(i);
             if (bullet.getDirection() == 1 && player.isHit(bullet)){
                 isGameRunning = false;
+                ms.stop();
             }
         }
     }
@@ -182,7 +188,7 @@ public class GUI extends JFrame {
         if (!isGameRunning){
             JLabel label = new JLabel("YOU LOST...");
             label.setFont(new Font( "pixeloidSansFont", Font.BOLD, 22));
-            JOptionPane.showMessageDialog(null,label,"NOOB",JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(null,label,"...",JOptionPane.WARNING_MESSAGE);
 
             this.setVisible(false);
             this.dispose();
@@ -190,7 +196,7 @@ public class GUI extends JFrame {
         } else if (enemies.size() == 0) {
             JLabel label = new JLabel("YOU WON!");
             label.setFont(new Font("pixeloidSansFont", Font.BOLD, 22));
-            JOptionPane.showMessageDialog(null, label, "PRO", JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(null, label, "...", JOptionPane.WARNING_MESSAGE);
             this.dispose();
             isGameRunning = false;
         }
