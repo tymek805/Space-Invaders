@@ -53,21 +53,27 @@ public class Settings extends JFrame {
 		setResizable(false);
 		setLayout(new BorderLayout());
 		setBackground(Color.WHITE);
+
 		panel = new JPanel();
 		panel.setBackground(Color.WHITE);
-		panel.setLayout(new GridLayout(4, 2));
+		panel.setLayout(new GridLayout(5, 2));
 		panel.setPreferredSize(new Dimension(400, 300));
+
 		title = new JLabel("Settings", SwingConstants.CENTER);
 		title.setFont(new Font("Arial", Font.BOLD, 20));
+
 		volume = new JLabel("Volume: ");
 		difficulty = new JLabel("Difficulty: ");
 		music = new JLabel("Music: ");
+
 		volumeField = new JTextField();
 		difficultyField = new JTextField();
 		musicField = new JTextField();
+
 		save = new JButton("Save");
 		load = new JButton("Load");
-		exit = new JButton("Exit");
+		exit = new JButton("Close \nsettings");
+
 		settings = new ArrayList<String>();
 		file = new File("settings.txt");
 		save.addActionListener(new ActionListener() {
@@ -82,10 +88,10 @@ public class Settings extends JFrame {
 		});
 		exit.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				System.exit(0);
+				setVisible(false);
 			}
 		});
-		Border border = BorderFactory.createLineBorder(Color.BLACK, 1);
+		Border border = BorderFactory.createLineBorder(Color.BLACK, 2);
 		volumeField.setBorder(border);
 		difficultyField.setBorder(border);
 		musicField.setBorder(border);

@@ -8,7 +8,7 @@ import java.io.IOException;
 
 public abstract class GameObject extends JLabel {
     private final int speed, direction;
-    private final int bulletSpeed = 9;
+    private final int bulletSpeed = 5;
     private final int width, height;
     private final JPanel panel;
 
