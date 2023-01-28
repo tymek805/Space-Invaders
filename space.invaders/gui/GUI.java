@@ -22,10 +22,6 @@ public class GUI extends JFrame {
     private boolean isGameRunning = true;
     private Music musicPlayer;
 
-    //Fonts
-    Font sevenSegmentsFont = null;
-    Font pixeloidSansFont = null;
-
     public GUI() {
         this.setTitle("Space Invaders");
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -54,11 +50,12 @@ public class GUI extends JFrame {
         panel.add(player);
 
         // Enemies
+        String[] names = {"enemy.png", "enemyBlue.png", "enemyLightBlue.png", "enemyPurpul.png", "enemyRed.png"};
         int y_enemy = 50;
         for (int i = 0; i < 5; i++){
             int x_enemy = 0;
             for (int j = 0; j < 11; j++) {
-                Enemy enemy = new Enemy(30,22,1, panel);
+                Enemy enemy = new Enemy(30,22,1, panel, names[i]);
                 enemy.setBounds(x_enemy, y_enemy);
                 enemies.add(enemy);
                 panel.add(enemy);
@@ -74,12 +71,13 @@ public class GUI extends JFrame {
 
         //Font
         try {
-            pixeloidSansFont = Font.createFont(Font.TRUETYPE_FONT, new File("space.invaders\\Fonts\\pixeloidSans.ttf")).deriveFont(30f);
-            sevenSegmentsFont = Font.createFont(Font.TRUETYPE_FONT, new File("space.invaders\\Fonts\\sevenSegment.ttf")).deriveFont(30f);
+            Font pixeloidSansFont = Font.createFont(Font.TRUETYPE_FONT, new File("space.invaders\\Fonts\\pixeloidSans.ttf")).deriveFont(30f);
+            Font sevenSegmentsFont = Font.createFont(Font.TRUETYPE_FONT, new File("space.invaders\\Fonts\\sevenSegment.ttf")).deriveFont(30f);
             GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+            ge.registerFont(pixeloidSansFont);
             ge.registerFont(sevenSegmentsFont);
+            gameTimer.getTimeLabel().setFont(sevenSegmentsFont);
         } catch (Exception e) {e.printStackTrace();}
-        gameTimer.getTimeLabel().setFont(sevenSegmentsFont);
 
         this.addKeyListener(new KeyListener() {
             @Override
@@ -99,42 +97,32 @@ public class GUI extends JFrame {
                         bullets.add(player.makeBullet());
                     }
 
-                    if (e.getKeyCode() == KeyEvent.VK_ESCAPE && settingsWindow.isVisible() == false){
-                        settingsWindow.setVisible(true);
-                        setGameRunning(false);
-                    } else if(e.getKeyCode() == KeyEvent.VK_ESCAPE && settingsWindow.isVisible() == true){
-                        settingsWindow.setVisible(false);
-                        setGameRunning(true);
-                    }
+                    if (e.getKeyCode() == KeyEvent.VK_ESCAPE){settingsWindow.setVisible(true);}
                 }
             }
         });
 
         new Thread(() -> {
             try {
-                while (isGameRunning == true) {
-                    player.move(left, right);
-                    enemyMove();
-                    removeBulletOnBorder();
-                    enemyShot((int) (System.currentTimeMillis() - gameTimer.getStartTime()));
-                    playerHit();
+                while (isGameRunning) {
+                    System.out.println(settingsWindow.isVisible());
+                    if (!settingsWindow.isVisible()){
+                        player.move(left, right);
+                        enemyMove();
+                        removeBulletOnBorder();
+                        enemyShot((int) (System.currentTimeMillis() - gameTimer.getStartTime()));
+                        playerHit();
 
-                    for (int i = 0; i < enemies.size(); i++) {
-                        enemyHit(enemies.get(i));
+                        for (int i = 0; i < enemies.size(); i++) {
+                            enemyHit(enemies.get(i));
+                        }
+
+                        winConditions();
+                        panel.revalidate();
+                        panel.repaint();
+                        Thread.sleep(20);
                     }
-                    
-                    winConditions();
-                    panel.revalidate();
-                    panel.repaint();
-                    Thread.sleep(20);
                 }
-
-                while (isGameRunning == false){
-                    panel.revalidate();
-                    panel.repaint();
-                    Thread.sleep(20); 
-                }
-
             } catch (Exception ex) {
                 ex.printStackTrace();
                 System.exit(0);
@@ -206,7 +194,7 @@ public class GUI extends JFrame {
         if (!isGameRunning){
             JLabel label = new JLabel("YOU LOST...");
             label.setFont(new Font( "pixeloidSansFont", Font.BOLD, 22));
-            JOptionPane.showMessageDialog(null,label,"...",JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(null,label,"NOOB",JOptionPane.WARNING_MESSAGE);
 
             this.setVisible(false);
             this.dispose();
@@ -214,16 +202,9 @@ public class GUI extends JFrame {
         } else if (enemies.size() == 0) {
             JLabel label = new JLabel("YOU WON!");
             label.setFont(new Font("pixeloidSansFont", Font.BOLD, 22));
-            JOptionPane.showMessageDialog(null, label, "...", JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(null, label, "PRO", JOptionPane.WARNING_MESSAGE);
             this.dispose();
             isGameRunning = false;
         }
-    }
-
-    public boolean isGameRunning() {
-        return isGameRunning;
-    }
-    public void setGameRunning(boolean isGameRunning) {
-        this.isGameRunning = isGameRunning;
     }
 }

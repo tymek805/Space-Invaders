@@ -7,12 +7,15 @@ import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.security.Key;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -48,7 +51,6 @@ public class Settings extends JFrame {
 	public Settings() {
 		super("Settings");
 		setSize(400, 300);
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setLocationRelativeTo(null);
 		setResizable(false);
 		setLayout(new BorderLayout());
@@ -76,21 +78,10 @@ public class Settings extends JFrame {
 
 		settings = new ArrayList<String>();
 		file = new File("settings.txt");
-		save.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				saveSettings();
-			}
-		});
-		load.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				loadSettings();
-			}
-		});
-		exit.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				setVisible(false);
-			}
-		});
+		save.addActionListener(e -> saveSettings());
+		load.addActionListener(e -> loadSettings());
+		exit.addActionListener(e -> this.setVisible(false));
+
 		Border border = BorderFactory.createLineBorder(Color.BLACK, 2);
 		volumeField.setBorder(border);
 		difficultyField.setBorder(border);
@@ -106,7 +97,7 @@ public class Settings extends JFrame {
 		panel.add(exit);
 		add(title, BorderLayout.NORTH);
 		add(panel, BorderLayout.CENTER);
-		setVisible(true);
+		setVisible(false);
 	}
 
 	public void saveSettings() {
@@ -134,9 +125,7 @@ public class Settings extends JFrame {
 			volumeField.setText(settings.get(0));
 			difficultyField.setText(settings.get(1));
 			musicField.setText(settings.get(2));
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (ClassNotFoundException e) {
+		} catch (IOException | ClassNotFoundException e) {
 			e.printStackTrace();
 		}
 	}
